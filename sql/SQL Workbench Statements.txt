@@ -1,0 +1,40 @@
+SQL Workbench Statements:
+
+SELECT *
+FROM weedmaps_table;
+
+SELECT *
+FROM curaleafData;
+
+SELECT *
+FROM v_grower_circle_inventory_clean;
+
+SELECT *
+FROM sku_dispensary_tgc_mapping_backup;
+
+SELECT *
+FROM dispensary_inventory_snapshot;
+
+SELECT *
+FROM typesense_table;
+
+SELECT *
+FROM cultivationsubinventory;
+
+SELECT *
+FROM sku_tgc_mapping;
+
+SELECT *
+FROM typesense_table_updated;
+
+SELECT *
+FROM producttypes;
+
+SELECT *
+FROM sku_dispensary_tgc_mapping;
+
+SELECT *
+FROM cultivationinventory;
+
+SELECT *
+FROM iheartjane_table;
