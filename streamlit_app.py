@@ -71,7 +71,7 @@ def update_filter_options(df):
 
 with main_container:
     st.markdown(
-        f'<a href="https://docs.google.com/spreadsheets/d/1KnKCSQRA_kROpu8PL1odabKVu5tzfBhHDBAdl96WaaE" target="_blank"><button style="margin: 2px; padding: 10px; background-color: #4CAF50; color: white;">Open Drops & Sell-Thru</button></a>',
+        f'<a href="https://docs.google.com/spreadsheets/d/1jHBz2zzvIO8KcWscrqq43wqV74DLiq1Jv1DjB2nd1DE/edit?usp=sharing" target="_blank"><button style="margin: 2px; padding: 10px; background-color: #4CAF50; color: white;">Open Drops & Sell-Thru</button></a>',
         unsafe_allow_html=True,
     )
     if st.button("Fetch ALL"):
