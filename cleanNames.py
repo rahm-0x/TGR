@@ -69,10 +69,10 @@ def fetch_data(cursor):
     FROM 
       public.v_grower_circle_inventory_clean IC
       LEFT JOIN public.sku_dispensary_tgc_mapping MAP
-      ON MAP.name = IC.name and IC.dispensary_name = MAP.dispensary_name
+      ON MAP.Product = IC.name and IC.dispensary_name = MAP.dispensary_name
     WHERE 
-      brand LIKE 'The Grower Circle'
-      AND MAP.name IS NULL
+      IC.brand LIKE 'The Grower Circle'
+      AND MAP.Product IS NULL
     """
     cursor.execute(query)
     return cursor.fetchall()
@@ -127,10 +127,11 @@ def insert_data(cursor, data):
 
     insert_query = """
     INSERT INTO sku_dispensary_tgc_mapping
-    (dispensary_name, name, type, subtype, translated_category, translated_subcategory, strain)
+    (dispensary_name, product, category, subtype, translated_category, translated_subcategory, strain)
     VALUES %s;
     """
     psycopg2.extras.execute_values(cursor, insert_query, values)
+
 
 def main():
     db_config = load_secrets("/Users/phoenix/Desktop/TGR/secrets.toml")
