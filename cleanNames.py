@@ -133,8 +133,8 @@ def insert_data(cursor, data):
     psycopg2.extras.execute_values(cursor, insert_query, values)
 
 def main():
-    db_config = load_secrets("/Users/phoenix/Desktop/TGC-sell_through/secrets.toml")
-    training_df = load_training_data("/Users/phoenix/Desktop/TGC-sell_through/training_data.csv")
+    db_config = load_secrets("/Users/phoenix/Desktop/TGR/secrets.toml")
+    training_df = load_training_data("/Users/phoenix/Desktop/TGR/training_data.csv")
     
     mapping_dict = {row['Original_Name']: (row['Category'], row['Subcategory'], row['Strain']) for _, row in training_df.iterrows()}
 
