@@ -56,5 +56,3 @@ SELECT "Snapshot_Time"::timestamp without time zone as snapshot_timestamp
 	, null as brand
 	FROM public.weedmaps_table
 WHERE "Product_Name" like '%grower%' or "Product_Name" like '%Grower%'
-
-z
