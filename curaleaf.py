@@ -1,29 +1,38 @@
-from datetime import datetime
-import json
 import requests
+import json
 import time
 import random
+from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker
+import toml
 
-# Database setup
-Base = declarative_base()
+# Load database credentials from secrets.toml
+secrets = toml.load('/Users/phoenix/Desktop/TGR/secrets.toml')
+db_config = {
+    "user": secrets['user'],
+    "password": secrets['password'],
+    "host": secrets['host'],
+    "port": secrets['port'],
+    "dbname": secrets['dbname']
+}
 
 # Connection string for SQLAlchemy
-user = 'postgres'
-password = 'FlightBites420'
-host = 'tgc.ctw7w8h4lv6k.us-west-2.rds.amazonaws.com'
-port = '5432'
-database = 'postgres'
+user = db_config['user']
+password = db_config['password']
+host = db_config['host']
+port = db_config['port']
+database = db_config['dbname']
 
 engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
-
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Table Definition
+# Database table setup
+Base = declarative_base()
+
 class CuraleafData(Base):
-    __tablename__ = 'curaleafData'
+    __tablename__ = 'curaleaf_data'
     id = Column(Integer, primary_key=True, autoincrement=True)
     snapshot_timestamp = Column(DateTime)
     dispensary_name = Column(String)
@@ -35,12 +44,11 @@ class CuraleafData(Base):
     thc_content = Column(String)
     brand = Column(String)
 
-# Create table
+# Create the table in the database
 Base.metadata.create_all(engine)
 
 # API setup
 url = 'https://graph.curaleaf.com/api/curaql'
-# API headers
 headers = {
     'authority': 'graph.curaleaf.com',
     'accept': '*/*',
@@ -55,7 +63,7 @@ headers = {
 
 dispensary_ids = [
     {"id": "LMR054", "name": "Curaleaf Western Ave"},
-    {"id": "LMR019", "name": "Curaleaf Las Vegas Blvd"}  # Add actual ID later
+    {"id": "LMR019", "name": "Curaleaf Las Vegas Blvd"}
 ]
 
 unique_records = set()
@@ -67,7 +75,7 @@ for dispensary in dispensary_ids:
 
     while True:
         time.sleep(random.uniform(2, 2.5))
-        
+
         payload = {
             "operationName": "PGP",
             "variables": {
@@ -75,97 +83,96 @@ for dispensary in dispensary_ids:
                 "menuType": "RECREATIONAL"
             },
             "query": """fragment grid on Product {
-        brand {
-            name
-        }
-        cardDescription
-        category {
-            displayName
-            key
-            __typename
-        }
-        effects {
-            displayName
-            __typename
-        }
-        id
-        images {
-            url
-            __typename
-        }
-        labResults {
-            thc {
-                formatted
-                range
-                __typename
-            }
-            terpenes {
-                terpene {
+                brand {
                     name
+                }
+                cardDescription
+                category {
+                    displayName
+                    key
+                    __typename
+                }
+                effects {
+                    displayName
+                    __typename
+                }
+                id
+                images {
+                    url
+                    __typename
+                }
+                labResults {
+                    thc {
+                        formatted
+                        range
+                        __typename
+                    }
+                    terpenes {
+                        terpene {
+                            name
+                            __typename
+                        }
+                        __typename
+                    }
+                    __typename
+                }
+                name
+                offers {
+                    id
+                    title
+                    __typename
+                }
+                strain {
+                    key
+                    displayName
+                    __typename
+                }
+                subcategory {
+                    key
+                    displayName
+                    __typename
+                }
+                variants {
+                    id
+                    isSpecial
+                    option
+                    price
+                    quantity
+                    specialPrice
                     __typename
                 }
                 __typename
             }
-            __typename
+            query PGP($dispensaryUniqueId: ID!, $menuType: MenuType!) {
+                dispensaryMenu(dispensaryUniqueId: $dispensaryUniqueId, menuType: $menuType) {
+                    offers {
+                        id
+                        title
+                        __typename
+                    }
+                    products {
+                        ...grid
+                        __typename
+                    }
+                    __typename
+                }
+            }"""
         }
-        name
-        offers {
-            id
-            title
-            __typename
-        }
-        strain {
-            key
-            displayName
-            __typename
-        }
-        subcategory {
-            key
-            displayName
-            __typename
-        }
-        variants {
-            id
-            isSpecial
-            option
-            price
-            quantity
-            specialPrice
-            __typename
-        }
-        __typename
-    }
-    query PGP($dispensaryUniqueId: ID!, $menuType: MenuType!) {
-        dispensaryMenu(dispensaryUniqueId: $dispensaryUniqueId, menuType: $menuType) {
-            offers {
-                id
-                title
-                __typename
-            }
-            products {
-                ...grid
-                __typename
-            }
-            __typename
-        }
-    }"""
-        }   
-        
+
         response = requests.post(url, headers=headers, json=payload)
         data = response.json()
-        
+
         products = data.get('data', {}).get('dispensaryMenu', {}).get('products', [])
-        
+
         print(f"Pulling data for page {page}, found {len(products)} records.")
-        
+
         for product in products:
             name = product.get('name')
-            
+
             if name not in unique_records:
                 unique_records.add(name)
                 new_records_this_page += 1
-                
-                
+
                 record = {
                     'snapshot_timestamp': datetime.now(),
                     'dispensary_name': dispensary['name'],
@@ -184,7 +191,7 @@ for dispensary in dispensary_ids:
         if new_records_this_page == 0:
             print("No new records found. Exiting loop.")
             break
-            
+
         new_records_this_page = 0
         page += 1
 
@@ -193,7 +200,7 @@ for dispensary in dispensary_ids:
         session.add(new_record)
 
     session.commit()
-    
+
     sleep_time = random.uniform(60, 120)  # 1 to 2 minutes
     print(f"Sleeping for {sleep_time} seconds before moving on to the next dispensary.")
     time.sleep(sleep_time)

@@ -68,7 +68,7 @@ def transform_data(hits, store_name, snapshot_time):
 
 def main():
     # Connection string for SQLAlchemy
-    secrets = toml.load('/Users/phoenix/Desktop/TGC-sell_through/secrets.toml')
+    secrets = toml.load('/Users/phoenix/Desktop/TGR/secrets.toml')
     db_config = {
     "user": secrets['user'],
     "password": secrets['password'],
