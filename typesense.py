@@ -1,4 +1,3 @@
-#typesenseAPIDataPullAll.py
 import requests
 import json
 import time
@@ -6,6 +5,26 @@ import random
 from datetime import datetime
 from sqlalchemy import create_engine
 import pandas as pd
+import toml
+
+# Load database credentials from secrets.toml
+secrets = toml.load('/Users/phoenix/Desktop/TGR/secrets.toml')
+db_config = {
+    "user": secrets['user'],
+    "password": secrets['password'],
+    "host": secrets['host'],
+    "port": secrets['port'],
+    "dbname": secrets['dbname']
+}
+
+# Connection string for SQLAlchemy
+user = db_config['user']
+password = db_config['password']
+host = db_config['host']
+port = db_config['port']
+database = db_config['dbname']
+
+engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
 
 # Headers and Params
 headers = {
@@ -64,7 +83,7 @@ for collection, dispensary_name in collections.items():
             "searches": [{
                 "query_by": "name, brand, strain, masterCategoryName, description, labResultNames, slug",
                 "infix": "always, always, off, off, off, always, off",
-                "per_page": 10,
+                "per_page": 100,
                 "exhaustive_search": True,
                 "collection": collection,
                 "q": "*",
@@ -79,12 +98,12 @@ for collection, dispensary_name in collections.items():
 
         if response.status_code == 200:
             json_data = response.json()
-            
+
             try:
                 hits_data = json_data["results"][0]["hits"]
             except (KeyError, IndexError):
                 hits_data = []
-            
+
             if hits_data:
                 for hit in hits_data:
                     hit_id = hit["document"]["id"]
@@ -121,15 +140,6 @@ if all_data:
         json.dump(all_data, json_file, indent=4)
     print("All unique data saved to typesenseAllDataPull")
 
-# Connection string for SQLAlchemy
-user = 'postgres'
-password = 'FlightBites420'
-host = 'tgc.ctw7w8h4lv6k.us-west-2.rds.amazonaws.com'
-port = '5432'
-database = 'postgres'
-
-engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
-
 # Load the Typesense JSON data
 with open('typesenseAllDataPull.json', 'r') as f:
     typesense_data = json.load(f)
@@ -137,9 +147,10 @@ with open('typesenseAllDataPull.json', 'r') as f:
 # Flatten the 'document' field and create a DataFrame
 flattened_data = [item['document'] for item in typesense_data]
 df_typesense = pd.DataFrame(flattened_data)
+
+# Drop any unnecessary columns
 if 'visibleTags' in df_typesense.columns:
     df_typesense = df_typesense.drop(columns=['visibleTags'])
-
 
 # Add snapshot_time column
 df_typesense['snapshot_time'] = snapshot_time
@@ -149,14 +160,18 @@ column_mapping_typesense = {
     'name': 'Product_Name',
     'brand': 'Brand',
     'categoryName': 'Category',
-    'strain': 'Strain_Type',
-    'description': 'Description',
     'option1Price': 'Price',
     'unitWeight': 'Quantity',
     'qty': 'Available_Quantity',
-    'dispensary_location': 'Location'
-}  # Your existing column mapping
+    'dispensary_location': 'Location',
+    'snapshot_time': 'snapshot_time'
+}
+
+# Remove any columns that are not in the column_mapping
+df_typesense = df_typesense.rename(columns=column_mapping_typesense)
+df_typesense = df_typesense[[col for col in column_mapping_typesense.values() if col in df_typesense.columns]]
 
 # Transform and save to the SQL table
-df_typesense = df_typesense.rename(columns=column_mapping_typesense).astype(str)
 df_typesense.to_sql('typesense_table', engine, if_exists='append', index=False)
+
+print("Data saved to typesense_table in SQL.")
