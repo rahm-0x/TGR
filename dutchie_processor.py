@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from filters import update_filter_options_dutchie
+from datetime import datetime
 
 def calculate_sales(row, date_cols):
     reversed_date_cols = date_cols[::-1]
@@ -12,10 +13,21 @@ def calculate_sales(row, date_cols):
 def process_dutchie_data():
     if 'df_dutchie' in st.session_state:
         df_dutchie = st.session_state['df_dutchie']
-        recent_dates = sorted([col for col in df_dutchie.columns if '-' in col], reverse=True)
 
-        df_dutchie[recent_dates] = df_dutchie[recent_dates].fillna(0)
+        # Identify date columns by checking for columns that resemble dates
+        recent_dates = sorted([col for col in df_dutchie.columns if isinstance(col, str) and col.count('-') == 2], reverse=True)
 
+        # Ensure the date columns are recognized as dates and fill NaN with 0
+        df_dutchie[recent_dates] = df_dutchie[recent_dates].apply(pd.to_numeric, errors='coerce').fillna(0)
+
+        # Check if the latest date column is missing (e.g., 2024-09-12)
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        if current_date not in recent_dates:
+            # Dynamically add the column for today's data (default to 0 or fetch new data)
+            df_dutchie[current_date] = 0  # Replace with actual new data if needed
+            recent_dates = sorted([*recent_dates, current_date], reverse=True)
+
+        # Calculate sales since yesterday
         if len(recent_dates) >= 2:
             df_dutchie['Sales_Since_Yesterday'] = df_dutchie[recent_dates[1]] - df_dutchie[recent_dates[0]]
         else:
@@ -23,6 +35,7 @@ def process_dutchie_data():
 
         df_dutchie['Sales_Since_Yesterday'] = pd.to_numeric(df_dutchie['Sales_Since_Yesterday'], errors='coerce')
 
+        # Calculate sales for last 3, 7, and 30 days
         last_3_days = recent_dates[:3]
         last_7_days = recent_dates[:7]
         last_30_days = recent_dates[:30]
@@ -31,7 +44,7 @@ def process_dutchie_data():
         df_dutchie['Sales_Last_7_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, last_7_days), axis=1)
         df_dutchie['Sales_Last_30_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, last_30_days), axis=1)
 
-        # Apply filters
+        # Apply filters for Dutchie data
         filter_options_dutchie = update_filter_options_dutchie(df_dutchie)
         selected_brand_dutchie = st.selectbox("Filter by Brand (Dutchie)", filter_options_dutchie["brands"], key='brand_filter_dutchie')
         if selected_brand_dutchie != "ALL":
@@ -45,18 +58,18 @@ def process_dutchie_data():
         if selected_category_dutchie != "ALL":
             df_dutchie = df_dutchie[df_dutchie['category'] == selected_category_dutchie]
 
-
+        # Search functionality
         search_term_dutchie = st.text_input("Search (Dutchie)", "")
         if search_term_dutchie:
             df_dutchie = df_dutchie[df_dutchie.apply(lambda row: row.astype(str).str.contains(search_term_dutchie, case=False).any(), axis=1)]
 
         st.title("Dutchie Dispensary On-Hands & Sales Data")
 
-        # Remove the "Sales_Last_3_Days", "Sales_Last_7_Days", and "Sales_Last_30_Days" columns from the main table
+        # Exclude specific columns like Sales metrics from the main display table
         columns_to_display = [col for col in df_dutchie.columns if col not in ['Sales_Last_3_Days', 'Sales_Last_7_Days', 'Sales_Last_30_Days']]
         st.dataframe(df_dutchie[columns_to_display])
 
-        # Display sales data and pie chart
+        # Display the sales data and pie chart
         col1, col2 = st.columns(2)
 
         with col1:
