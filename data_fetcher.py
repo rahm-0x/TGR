@@ -13,7 +13,6 @@ def hash_credentials(credentials):
 
 # Function to fetch inventory data with optional cache bypass
 def fetch_inventory_data(query, bypass_cache=False):
-    # Fetch credentials from secrets
     credentials = {
         'dbname': st.secrets["dbname"],
         'user': st.secrets["user"],
@@ -21,31 +20,25 @@ def fetch_inventory_data(query, bypass_cache=False):
         'host': st.secrets["host"],
         'port': st.secrets["port"],
     }
-    
-    # Generate cache key based on credentials and query hash
     cred_hash = hash_credentials(credentials)
     cache_key = f"{cred_hash}:{hashlib.md5(query.encode()).hexdigest()}"
-
-    # Check if data is already cached and bypass_cache is not set
+    
+    # Bypass cache when bypass_cache flag is set to True
     if cache_key not in local_cache or bypass_cache:
-        st.write(f"Fetching data for query: {query}")  # Debugging output
+        st.write(f"Fetching fresh data for query: {query}")
         try:
-            # Connect to the database using SQLAlchemy
             engine = create_engine(f"postgresql+psycopg2://{credentials['user']}:{credentials['password']}@{credentials['host']}:{credentials['port']}/{credentials['dbname']}")
             with engine.connect() as connection:
-                # Fetch the data
                 df = pd.read_sql(query, connection)
                 # Cache the result
                 local_cache[cache_key] = df
-                st.write(f"Data fetched successfully. Caching with key: {cache_key}")  # Debugging output
+                st.write(f"Data fetched and cached with key: {cache_key}")
         except Exception as e:
             st.error(f"Error executing query: {e}")
             return pd.DataFrame()  # Return an empty DataFrame on error
-
     else:
-        st.write(f"Using cached data for query: {query}")  # Debugging output
+        st.write(f"Using cached data for query: {query}")
 
-    # Return cached or freshly fetched data
     return local_cache[cache_key]
 
 # Optionally clear the local cache (can be added as a button in the app)
