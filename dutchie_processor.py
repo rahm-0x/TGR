@@ -4,38 +4,35 @@ import plotly.express as px
 from filters import update_filter_options_dutchie
 from datetime import datetime
 
-def calculate_sales(row, date_cols):
-    reversed_date_cols = date_cols[::-1]
+# Function to calculate actual sales, ignoring restocks
+def calculate_sales(row: pd.Series, date_cols: list):
+    reversed_date_cols = date_cols[::-1]  # Reverse to start with the latest dates
     diffs = row[reversed_date_cols].diff(-1).fillna(0).infer_objects()
-    diffs = diffs[diffs >= 0]
-    return diffs.sum()
+    
+    # Ignore restocks (increases in inventory) and only count sales (decreases in inventory)
+    sales = diffs[diffs >= 0]
+    
+    return sales.sum()
 
 def process_dutchie_data():
     if 'df_dutchie' in st.session_state:
         df_dutchie = st.session_state['df_dutchie']
 
-        # Identify date columns by checking for columns that resemble dates
-        recent_dates = sorted([col for col in df_dutchie.columns if isinstance(col, str) and col.count('-') == 2], reverse=True)
+        # Identify date columns by checking for columns that resemble dates (i.e., they contain dashes)
+        recent_dates = sorted([col for col in df_dutchie.columns if isinstance(col, str) and '-' in col], reverse=True)
 
-        # Ensure the date columns are recognized as dates and fill NaN with 0
+        # Ensure the date columns are treated as numeric and fill any NaN values with 0
         df_dutchie[recent_dates] = df_dutchie[recent_dates].apply(pd.to_numeric, errors='coerce').fillna(0)
 
-        # Check if the latest date column is missing (e.g., 2024-09-12)
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        if current_date not in recent_dates:
-            # Dynamically add the column for today's data (default to 0 or fetch new data)
-            df_dutchie[current_date] = 0  # Replace with actual new data if needed
-            recent_dates = sorted([*recent_dates, current_date], reverse=True)
-
-        # Calculate sales since yesterday
+        # Calculate actual sales since yesterday (ignoring restocks)
         if len(recent_dates) >= 2:
-            df_dutchie['Sales_Since_Yesterday'] = df_dutchie[recent_dates[1]] - df_dutchie[recent_dates[0]]
+            df_dutchie['Sales_Since_Yesterday'] = df_dutchie.apply(lambda row: calculate_sales(row, recent_dates[:2]), axis=1)
         else:
             df_dutchie['Sales_Since_Yesterday'] = "NA"
 
         df_dutchie['Sales_Since_Yesterday'] = pd.to_numeric(df_dutchie['Sales_Since_Yesterday'], errors='coerce')
 
-        # Calculate sales for last 3, 7, and 30 days
+        # Calculate sales for the last 3, 7, and 30 days (ignoring restocks)
         last_3_days = recent_dates[:3]
         last_7_days = recent_dates[:7]
         last_30_days = recent_dates[:30]
@@ -65,11 +62,11 @@ def process_dutchie_data():
 
         st.title("Dutchie Dispensary On-Hands & Sales Data")
 
-        # Exclude specific columns like Sales metrics from the main display table
+        # Exclude specific columns like sales metrics from the main display table
         columns_to_display = [col for col in df_dutchie.columns if col not in ['Sales_Last_3_Days', 'Sales_Last_7_Days', 'Sales_Last_30_Days']]
         st.dataframe(df_dutchie[columns_to_display])
 
-        # Display the sales data and pie chart
+        # Display sales data and pie chart
         col1, col2 = st.columns(2)
 
         with col1:
@@ -100,3 +97,4 @@ def process_dutchie_data():
             fig = px.pie(values=top_brands.values, names=top_brands.index, title='Top 5 Items by Sales Since Yesterday', labels={'value': 'Sales Since Yesterday'})
             fig.update_traces(textinfo='label+value')
             st.plotly_chart(fig, use_container_width=True)
+
