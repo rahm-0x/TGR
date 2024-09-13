@@ -41,7 +41,7 @@ def process_typesense_data():
             aggfunc='first'
         ).reset_index()
 
-        st.title("Typesense Inventory with Snapshots and Filters")
+        st.title("Typesense Inventory")
         st.dataframe(df_pivoted)
 
         # Dynamically find the most recent date columns (snapshot dates)

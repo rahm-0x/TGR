@@ -11,3 +11,10 @@ def update_filter_options_typesense(df):
         "locations": ["ALL"] + df['Location'].unique().tolist(),
         "categories": ["ALL"] + df['Category'].unique().tolist(),
     }
+
+    
+def update_filter_options_curaleaf(df):
+    return {
+        "dispensaries": ["ALL"] + df['dispensary_name'].unique().tolist(),
+        "categories": ["ALL"] + df['type'].unique().tolist(),
+    }

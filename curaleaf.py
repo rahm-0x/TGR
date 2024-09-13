@@ -38,7 +38,7 @@ class CuraleafData(Base):
     dispensary_name = Column(String)
     name = Column(String)
     price = Column(Float)
-    quantity = Column(Integer)
+    quantity = Column(Integer, nullable=True)  # Quantity may be nullable
     type = Column(String)
     subtype = Column(String)
     thc_content = Column(String)
@@ -173,12 +173,17 @@ for dispensary in dispensary_ids:
                 unique_records.add(name)
                 new_records_this_page += 1
 
+                # Handle missing or null values safely
+                variants = product.get('variants', [{}])[0]
+                quantity = variants.get('quantity')
+                price = variants.get('price')
+
                 record = {
                     'snapshot_timestamp': datetime.now(),
                     'dispensary_name': dispensary['name'],
                     'name': product.get('name'),
-                    'price': product.get('variants', [{}])[0].get('price'),
-                    'quantity': product.get('variants', [{}])[0].get('quantity'),
+                    'price': price if price is not None else 0,  # Default to 0 if price is None
+                    'quantity': quantity if quantity is not None else 0,  # Default to 0 if quantity is None
                     'type': product.get('category', {}).get('key'),
                     'subtype': product.get('subcategory', {}).get('key') if product.get('subcategory') else None,
                     'thc_content': product.get('labResults', {}).get('thc', {}).get('formatted'),
@@ -201,7 +206,7 @@ for dispensary in dispensary_ids:
 
     session.commit()
 
-    sleep_time = random.uniform(60, 120)  # 1 to 2 minutes
+    sleep_time = random.uniform(15, 30)  # 1 to 2 minutes
     print(f"Sleeping for {sleep_time} seconds before moving on to the next dispensary.")
     time.sleep(sleep_time)
 
