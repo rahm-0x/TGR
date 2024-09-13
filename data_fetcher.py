@@ -32,12 +32,12 @@ def fetch_inventory_data(query, bypass_cache=False):
                 df = pd.read_sql(query, connection)
                 # Cache the result
                 local_cache[cache_key] = df
-                st.write(f"Data fetched and cached with key: {cache_key}")
+                # st.write(f"Data fetched and cached with key: {cache_key}")
         except Exception as e:
             st.error(f"Error executing query: {e}")
             return pd.DataFrame()  # Return an empty DataFrame on error
-    else:
-        st.write(f"Using cached data for query: {query}")
+    # else:
+    #     st.write(f"Using cached data for query: {query}")
 
     return local_cache[cache_key]
 
