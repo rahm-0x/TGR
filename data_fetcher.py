@@ -25,7 +25,7 @@ def fetch_inventory_data(query, bypass_cache=False):
     
     # Bypass cache when bypass_cache flag is set to True
     if cache_key not in local_cache or bypass_cache:
-        st.write(f"Fetching fresh data for query: {query}")
+        # st.write(f"Fetching fresh data for query: {query}")
         try:
             engine = create_engine(f"postgresql+psycopg2://{credentials['user']}:{credentials['password']}@{credentials['host']}:{credentials['port']}/{credentials['dbname']}")
             with engine.connect() as connection:
