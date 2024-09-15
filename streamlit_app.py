@@ -51,5 +51,10 @@ with main_container:
         df_typesense_tgc = fetch_inventory_data(query)
         st.session_state['df_typesense'] = df_typesense_tgc
 
+
+    if st.button("Fetch Curaleaf Data"):
+        query = 'SELECT * FROM curaleaf_data'
+        df_curaleaf = fetch_inventory_data(query)
+        st.session_state['df_curaleaf'] = df_curaleaf
     # Process Typesense data
     process_typesense_data()
