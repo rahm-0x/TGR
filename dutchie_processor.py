@@ -6,25 +6,22 @@ from datetime import datetime
 
 # Function to calculate actual sales, ignoring restocks
 def calculate_sales(row: pd.Series, date_cols: list):
-    reversed_date_cols = date_cols[::-1]  # Reverse to start with the latest dates
+    reversed_date_cols = date_cols[::-1]
     diffs = row[reversed_date_cols].diff(-1).fillna(0).infer_objects()
-    
-    # Ignore restocks (increases in inventory) and only count sales (decreases in inventory)
-    sales = diffs[diffs >= 0]
-    
+    sales = diffs[diffs >= 0]  # Ignore restocks, count sales (decreases)
     return sales.sum()
 
 def process_dutchie_data():
     if 'df_dutchie' in st.session_state:
         df_dutchie = st.session_state['df_dutchie']
 
-        # Identify date columns by checking for columns that resemble dates (i.e., they contain dashes)
+        # Identify date columns by checking for columns that resemble dates
         recent_dates = sorted([col for col in df_dutchie.columns if isinstance(col, str) and '-' in col], reverse=True)
 
         # Ensure the date columns are treated as numeric and fill any NaN values with 0
         df_dutchie[recent_dates] = df_dutchie[recent_dates].apply(pd.to_numeric, errors='coerce').fillna(0)
 
-        # Calculate actual sales since yesterday (ignoring restocks)
+        # Calculate actual sales since yesterday
         if len(recent_dates) >= 2:
             df_dutchie['Sales_Since_Yesterday'] = df_dutchie.apply(lambda row: calculate_sales(row, recent_dates[:2]), axis=1)
         else:
@@ -32,14 +29,10 @@ def process_dutchie_data():
 
         df_dutchie['Sales_Since_Yesterday'] = pd.to_numeric(df_dutchie['Sales_Since_Yesterday'], errors='coerce')
 
-        # Calculate sales for the last 3, 7, and 30 days (ignoring restocks)
-        last_3_days = recent_dates[:3]
-        last_7_days = recent_dates[:7]
-        last_30_days = recent_dates[:30]
-
-        df_dutchie['Sales_Last_3_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, last_3_days), axis=1)
-        df_dutchie['Sales_Last_7_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, last_7_days), axis=1)
-        df_dutchie['Sales_Last_30_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, last_30_days), axis=1)
+        # Calculate sales for the last 3, 7, and 30 days
+        df_dutchie['Sales_Last_3_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, recent_dates[:3]), axis=1)
+        df_dutchie['Sales_Last_7_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, recent_dates[:7]), axis=1)
+        df_dutchie['Sales_Last_30_Days'] = df_dutchie.apply(lambda row: calculate_sales(row, recent_dates[:30]), axis=1)
 
         # Apply filters for Dutchie data
         filter_options_dutchie = update_filter_options_dutchie(df_dutchie)
@@ -97,4 +90,3 @@ def process_dutchie_data():
             fig = px.pie(values=top_brands.values, names=top_brands.index, title='Top 5 Items by Sales Since Yesterday', labels={'value': 'Sales Since Yesterday'})
             fig.update_traces(textinfo='label+value')
             st.plotly_chart(fig, use_container_width=True)
-
