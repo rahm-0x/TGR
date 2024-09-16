@@ -1,20 +1,51 @@
 def update_filter_options_dutchie(df):
-    return {
-        "brands": ["ALL"] + df['brand'].unique().tolist(),
-        "dispensaries": ["ALL"] + df['dispensary_name'].unique().tolist(),
-        "categories": ["ALL"] + df['category'].unique().tolist(),
+    filter_options = {
+        "brands": ["ALL"],
+        "dispensaries": ["ALL"],
+        "categories": ["ALL"],
     }
+
+    if 'brand' in df.columns:
+        filter_options["brands"] += df['brand'].unique().tolist()
+
+    if 'dispensary_name' in df.columns:
+        filter_options["dispensaries"] += df['dispensary_name'].unique().tolist()
+
+    if 'category' in df.columns:
+        filter_options["categories"] += df['category'].unique().tolist()
+
+    return filter_options
+
 
 def update_filter_options_typesense(df):
-    return {
-        "brands": ["ALL"] + df['Brand'].unique().tolist(),
-        "locations": ["ALL"] + df['Location'].unique().tolist(),
-        "categories": ["ALL"] + df['Category'].unique().tolist(),
+    filter_options = {
+        "brands": ["ALL"],
+        "locations": ["ALL"],
+        "categories": ["ALL"],
     }
 
-    
+    if 'Brand' in df.columns:
+        filter_options["brands"] += df['Brand'].unique().tolist()
+
+    if 'Location' in df.columns:
+        filter_options["locations"] += df['Location'].unique().tolist()
+
+    if 'Category' in df.columns:
+        filter_options["categories"] += df['Category'].unique().tolist()
+
+    return filter_options
+
+
 def update_filter_options_curaleaf(df):
-    return {
-        "dispensaries": ["ALL"] + df['dispensary_name'].unique().tolist(),
-        "categories": ["ALL"] + df['type'].unique().tolist(),
+    filter_options = {
+        "dispensaries": ["ALL"],
+        "categories": ["ALL"],
     }
+
+    if 'dispensary_name' in df.columns:
+        filter_options["dispensaries"] += df['dispensary_name'].unique().tolist()
+
+    if 'type' in df.columns:
+        filter_options["categories"] += df['type'].unique().tolist()
+
+    return filter_options

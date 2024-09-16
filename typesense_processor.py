@@ -7,8 +7,7 @@ from filters import update_filter_options_typesense
 def calculate_sales(row, date_cols):
     reversed_date_cols = date_cols[::-1]
     diffs = row[reversed_date_cols].diff(-1).fillna(0).infer_objects()
-    diffs = diffs[diffs >= 0]
-    return diffs.sum()
+    return diffs[diffs >= 0].sum()
 
 def process_typesense_data():
     if 'df_typesense' in st.session_state:
@@ -67,8 +66,6 @@ def process_typesense_data():
             (df_pivoted[recent_dates[0]].isna()) | 
             (df_pivoted[recent_dates[0]] == 0)
         ][['Location', 'Product_Name', 'Category', 'Price', recent_dates[0]]]
-
-
 
         # Display sales data and pie chart
         col1, col2 = st.columns(2)
