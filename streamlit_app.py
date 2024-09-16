@@ -56,5 +56,5 @@ with main_container:
     #     query = 'SELECT * FROM curaleaf_data'
     #     df_curaleaf = fetch_inventory_data(query)
     #     st.session_state['df_curaleaf'] = df_curaleaf
-    # Process Typesense data
+    ## Process Typesense data
     process_typesense_data()
