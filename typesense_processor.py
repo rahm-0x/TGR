@@ -3,6 +3,21 @@ import pandas as pd
 import plotly.express as px
 from filters import update_filter_options_typesense
 
+# Function to apply conditional formatting
+def highlight_inventory(val):
+    color = ''
+    if pd.notna(val):
+        if val < 15:
+            color = 'background-color: red'
+        elif val < 25:
+            color = 'background-color: yellow'
+    return color
+
+# Function to remove decimal places from the dataframe
+def format_to_integer(df, cols):
+    df[cols] = df[cols].fillna(0).astype(int)  # Fill NaN with 0 and then convert to integers
+    return df
+
 # Calculate sales for a range of dates
 def calculate_sales(row, date_cols):
     reversed_date_cols = date_cols[::-1]
@@ -43,10 +58,18 @@ def process_typesense_data():
         # Dynamically find the most recent date columns (snapshot dates)
         recent_dates = sorted([col for col in df_pivoted.columns if isinstance(col, pd.Timestamp)], reverse=True)
 
+        # Format the inventory numbers as integers (remove decimal places)
+        df_pivoted = format_to_integer(df_pivoted, recent_dates)
+
         # Rearrange columns so that the most recent dates are first
         columns_to_display = ['Location', 'Product_Name', 'Price', 'Brand', 'Category'] + recent_dates
         st.title("Typesense Inventory")
-        st.dataframe(df_pivoted[columns_to_display])
+
+        # Apply conditional formatting to inventory values
+        styled_df = df_pivoted[columns_to_display].style.applymap(highlight_inventory, subset=recent_dates)
+
+        # Display the dataframe with conditional formatting
+        st.dataframe(styled_df)
 
         # Calculate sales since yesterday
         if len(recent_dates) >= 2:
