@@ -40,12 +40,15 @@ def process_typesense_data():
             aggfunc='first'
         ).reset_index()
 
-        st.title("Typesense Inventory")
-        st.dataframe(df_pivoted)
-
         # Dynamically find the most recent date columns (snapshot dates)
         recent_dates = sorted([col for col in df_pivoted.columns if isinstance(col, pd.Timestamp)], reverse=True)
 
+        # Rearrange columns so that the most recent dates are first
+        columns_to_display = ['Location', 'Product_Name', 'Price', 'Brand', 'Category'] + recent_dates
+        st.title("Typesense Inventory")
+        st.dataframe(df_pivoted[columns_to_display])
+
+        # Calculate sales since yesterday
         if len(recent_dates) >= 2:
             df_pivoted['Sales_Since_Yesterday'] = df_pivoted[recent_dates[1]] - df_pivoted[recent_dates[0]]
         else:
