@@ -4,6 +4,21 @@ import plotly.express as px
 from filters import update_filter_options_dutchie
 from datetime import datetime
 
+# Function to apply conditional formatting
+def highlight_inventory(val):
+    color = ''
+    if pd.notna(val):
+        if val < 15:
+            color = 'background-color: red'
+        elif val < 25:
+            color = 'background-color: yellow'
+    return color
+
+# Function to remove decimal places from the dataframe
+def format_to_integer(df, cols):
+    df[cols] = df[cols].fillna(0).astype(int)  # Fill NaN with 0 and then convert to integers
+    return df
+
 # Function to calculate actual sales, ignoring restocks
 def calculate_sales(row: pd.Series, date_cols: list):
     reversed_date_cols = date_cols[::-1]
@@ -20,6 +35,9 @@ def process_dutchie_data():
 
         # Ensure the date columns are treated as numeric and fill any NaN values with 0
         df_dutchie[recent_dates] = df_dutchie[recent_dates].apply(pd.to_numeric, errors='coerce').fillna(0)
+
+        # Format the inventory numbers as integers (remove decimal places)
+        df_dutchie = format_to_integer(df_dutchie, recent_dates)
 
         # Calculate actual sales since yesterday
         if len(recent_dates) >= 2:
@@ -57,7 +75,12 @@ def process_dutchie_data():
 
         # Exclude specific columns like sales metrics from the main display table
         columns_to_display = [col for col in df_dutchie.columns if col not in ['Sales_Last_3_Days', 'Sales_Last_7_Days', 'Sales_Last_30_Days']]
-        st.dataframe(df_dutchie[columns_to_display])
+
+        # Apply conditional formatting to inventory values
+        styled_df = df_dutchie[columns_to_display].style.applymap(highlight_inventory, subset=recent_dates)
+
+        # Display the dataframe with conditional formatting
+        st.dataframe(styled_df)
 
         # Display sales data and pie chart
         col1, col2 = st.columns(2)
