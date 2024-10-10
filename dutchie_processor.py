@@ -4,6 +4,9 @@ import plotly.express as px
 from filters import update_filter_options_dutchie
 from datetime import datetime
 
+
+pd.set_option("styler.render.max_elements", 5000000)
+
 # Function to apply conditional formatting
 def highlight_inventory(val):
     color = ''
