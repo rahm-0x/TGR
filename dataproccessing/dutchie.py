@@ -54,7 +54,9 @@ dispensary_ids = {
     "61d6016935aacc00a23b0d07": "Thrive-Sammy Davis",
     "6125d6766b720a00d333ba81": "Sahara Wellness",
     "61ddeb052ac5e60092323aec": "Sanctuary Downtown Las Vegas",
-    "61ddeb5997f0d7008cf08847": "Sanctuary North Las Vegas"
+    "61ddeb5997f0d7008cf08847": "Sanctuary North Las Vegas",
+    "6074bf74331e7d00b3e62560": "Curaleaf Las Vegas Blvd",
+    "6074bf0b882eee00bbcf09eb": "Curaleaf Western Ave"
 }
 
 url_template = "https://dutchie.com/graphql?operationName=FilteredProducts&variables=%7B%22includeEnterpriseSpecials%22%3Afalse%2C%22includeCannabinoids%22%3Atrue%2C%22productsFilter%22%3A%7B%22dispensaryId%22%3A%22{dispensary_id}%22%2C%22pricingType%22%3A%22rec%22%2C%22strainTypes%22%3A%5B%5D%2C%22subcategories%22%3A%5B%5D%2C%22Status%22%3A%22Active%22%2C%22types%22%3A%5B%5D%2C%22useCache%22%3Afalse%2C%22sortDirection%22%3A1%2C%22sortBy%22%3Anull%2C%22isDefaultSort%22%3Atrue%2C%22bypassOnlineThresholds%22%3Afalse%2C%22isKioskMenu%22%3Afalse%2C%22removeProductsBelowOptionThresholds%22%3Atrue%7D%2C%22page%22%3A{page}%2C%22perPage%22%3A50%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22b1e1f3db5039456c1601e5ad022be22b086bcb35d9e604113ef9a55d0cfc9bac%22%7D%7D"
