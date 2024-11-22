@@ -6,9 +6,11 @@ facts.txt
 /iheartjanedispoall
 /training_data
 /Typesensedipso
-/gdrive/client_secret_*.json
-/gdrive/token.json
-/gdrive/*.json
-/gdrive/*.pyc
-/gdrive/__pycache__/
+# Ignore token.json and client secret files
 token.json
+client_secret_*.json
+*.json
+
+# Ignore generated Python bytecode
+*.pyc
+__pycache__/
