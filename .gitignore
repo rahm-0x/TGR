@@ -11,3 +11,4 @@ facts.txt
 /gdrive/*.json
 /gdrive/*.pyc
 /gdrive/__pycache__/
+token.json
