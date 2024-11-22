@@ -51,10 +51,10 @@ params = {
 
 # Dictionary of collections to loop through, mapped to dispensary names
 collections = {
-    'carrot-nevada-prod-3-loc_1-products': 'Nevada Made Marijuana - Charleston',
-    'carrot-nevada-prod-3-loc_4-products': 'Nevada Made Marijuana-Laughlin',
-    'carrot-nevada-prod-3-loc_3-products': 'Nevada Made Marijuana-Warm Springs',
-    'carrot-nevada-prod-3-loc_2-products': 'Nevada Made Marijuana-Henderson',
+    # 'carrot-nevada-prod-3-loc_1-products': 'Nevada Made Marijuana - Charleston',
+    # 'carrot-nevada-prod-3-loc_4-products': 'Nevada Made Marijuana-Laughlin',
+    # 'carrot-nevada-prod-3-loc_3-products': 'Nevada Made Marijuana-Warm Springs',
+    # 'carrot-nevada-prod-3-loc_2-products': 'Nevada Made Marijuana-Henderson',
     'carrot-nevada-prod-50-loc_2-products': 'Tree of Life-North',
     'carrot-nevada-prod-50-loc_1-products': 'Tree of Life-Jones',
     'carrot-wallflower-prod-1-loc_1-products': 'Wallflower',

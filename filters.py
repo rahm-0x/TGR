@@ -49,3 +49,23 @@ def update_filter_options_curaleaf(df):
         filter_options["categories"] += df['type'].unique().tolist()
 
     return filter_options
+
+
+
+def update_filter_options_standardized(df):
+    filter_options = {
+        "brands": ["ALL"],
+        "dispensaries": ["ALL"],
+        "categories": ["ALL"],
+    }
+
+    if 'brand' in df.columns:
+        filter_options["brands"] += df['brand'].dropna().unique().tolist()
+
+    if 'dispensary_name' in df.columns:
+        filter_options["dispensaries"] += df['dispensary_name'].dropna().unique().tolist()
+
+    if 'category' in df.columns:
+        filter_options["categories"] += df['category'].dropna().unique().tolist()
+
+    return filter_options

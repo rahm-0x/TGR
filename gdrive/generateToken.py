@@ -16,7 +16,7 @@ def get_credentials():
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("client_secret_554969294371-g5dpr5crn6bdvf1uv0tg4jcvnj5j97ui.apps.googleusercontent.com.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file("gdrive/client_secret_293133502471-tn95ust79tc2jq1liio7m4u4g6lfgj6p.apps.googleusercontent.com.json", SCOPES)
             credentials = flow.run_local_server(port=8080)
         
         with open("token.json", "w") as token:
