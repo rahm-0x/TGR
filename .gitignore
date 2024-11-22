@@ -3,9 +3,9 @@ facts.txt
 /gdrive
 /venv
 /venv/lib
-/iheartjanedispoall
-/training_data
-/Typesensedipso
+iheartjanedispoall.txt
+training_data.csv
+Typesensedipso.txt
 # Ignore token.json and client secret files
 token.json
 client_secret_*.json
