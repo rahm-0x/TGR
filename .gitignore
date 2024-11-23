@@ -2,6 +2,9 @@ facts.txt
 
 /gdrive
 /venv
+venv/
+SQL/
+/SQL
 /venv/lib
 iheartjanedispoall.txt
 training_data.csv

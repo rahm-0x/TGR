@@ -14,6 +14,13 @@ SELECT
         OR dispensary_inventory_snapshot.brand ~~ '%Flight%'::text 
         OR dispensary_inventory_snapshot.brand ~~ '%Growers Circle%'::text 
         OR dispensary_inventory_snapshot.brand ~~ '%Grower Circle%'::text 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+        OR dispensary_inventory_snapshot.brand ~~ '%Vegas Valley Growers%'::text 
+>>>>>>> f3284123f (Initial commit)
+>>>>>>> e644619f7
         THEN 'The Grower Circle'::text
         ELSE dispensary_inventory_snapshot.brand
     END AS brand
@@ -33,6 +40,13 @@ SELECT
         OR iheartjane_table."Brand" ~~ '%Flight%'::text 
         OR iheartjane_table."Brand" ~~ '%Grower Circle%'::text 
         OR iheartjane_table."Brand" ~~ '%Growers Circle%'::text 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+        OR iheartjane_table."Brand" ~~ '%Vegas Valley Growers%'::text 
+>>>>>>> f3284123f (Initial commit)
+>>>>>>> e644619f7
         THEN 'The Grower Circle'::text
         ELSE iheartjane_table."Brand"
     END AS brand
@@ -53,6 +67,13 @@ SELECT
         OR typesense_table."Brand" ~~ '%Grower Circle%'::text 
         OR typesense_table."Brand" ~~ '%Growers Circle%'::text 
         OR typesense_table."Brand" ~~ '%GROWERS CIRCLE%'::text 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+        OR typesense_table."Brand" ~~ '%Vegas Valley Growers%'::text 
+>>>>>>> f3284123f (Initial commit)
+>>>>>>> e644619f7
         THEN 'The Grower Circle'::text
         ELSE typesense_table."Brand"
     END AS brand
@@ -71,6 +92,13 @@ SELECT
         WHEN weedmaps_table."Product_Name" ~~ '%flight%'::text 
         OR weedmaps_table."Product_Name" ~~ '%Flight%'::text 
         OR weedmaps_table."Product_Name" ~~ '%Grower%'::text 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+        OR weedmaps_table."Product_Name" ~~ '%VVG%'::text 
+>>>>>>> f3284123f (Initial commit)
+>>>>>>> e644619f7
         THEN 'The Grower Circle'::text
         ELSE 'Not TGC'::text
     END AS brand
@@ -90,6 +118,13 @@ SELECT
         OR curaleafdata.brand::text ~~ '%Flight%'::text 
         OR curaleafdata.brand::text ~~ '%Grower Circle%'::text 
         OR curaleafdata.brand::text ~~ '%Growers Circle%'::text 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+        OR curaleafdata.brand::text ~~ '%Vegas Valley Growers%'::text 
+>>>>>>> f3284123f (Initial commit)
+>>>>>>> e644619f7
         THEN 'The Grower Circle'::text
         ELSE curaleafdata.brand::text
     END AS brand
