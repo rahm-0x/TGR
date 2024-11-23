@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 import toml
 
 # Load database credentials from secrets.toml
-secrets = toml.load('/Users/phoenix/Desktop/TGR/secrets.toml')
+secrets = toml.load('secrets.toml')
 db_config = {
     "user": secrets['user'],
     "password": secrets['password'],
