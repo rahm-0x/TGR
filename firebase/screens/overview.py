@@ -12,6 +12,8 @@ from processors.standardized_processor import process_standardized_inventory_dat
 # Sample data for sales, products, dispensaries, and categories
 sales_data = {
     "Date": pd.date_range(start="2024-11-01", end="2024-11-30"),
+    "Product Name": ["Product A"] * 10 + ["Product B"] * 10 + ["Product C"] * 10,
+    "Dispensary": ["Dispensary X"] * 5 + ["Dispensary Y"] * 5 + ["Dispensary Z"] * 10 + ["Dispensary W"] * 10,
     "Total Sales": [500 + i * 20 for i in range(30)],
 }
 
@@ -30,11 +32,18 @@ category_data = {
     "Sales": [1000, 950, 850, 800, 750],
 }
 
+inventory_status_data = {
+    "Product Name": ["Product A", "Product B", "Product C", "Product D", "Product E"],
+    "Stock Level": [30, 45, 25, 10, 50],
+    "Reorder Point": [20, 30, 20, 15, 40],
+}
+
 # Convert data to DataFrames
 df_sales = pd.DataFrame(sales_data)
 df_products = pd.DataFrame(products_data)
 df_dispensaries = pd.DataFrame(dispensaries_data)
 df_categories = pd.DataFrame(category_data)
+df_inventory = pd.DataFrame(inventory_status_data)
 
 # Streamlit layout
 st.set_page_config(layout="wide")
@@ -50,10 +59,41 @@ with st.sidebar:
         st.session_state["current_page"] = "home"
     if st.button("📊 Inventory"):
         st.session_state["current_page"] = "inventory_tables"
+    if st.button("🔎 Product Overview"):
+        st.session_state["current_page"] = "product_overview"
+
+# Custom CSS for semi-transparent overlay
+st.markdown(
+    """
+    <style>
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 50px;
+        z-index: 9999;
+    }
+    .hide {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Page: Home Overview
 if st.session_state["current_page"] == "home":
     st.title("Dashboard Overview")
+
+    # Add semi-transparent overlay
+    st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
 
     # Bar graph in the middle
     st.header("Total Sales - Day Over Day")
@@ -81,3 +121,76 @@ elif st.session_state["current_page"] == "inventory_tables":
 
     # Process standardized inventory data
     process_standardized_inventory_data()
+
+# Page: Product Overview
+elif st.session_state["current_page"] == "product_overview":
+    st.title("Product Overview")
+
+    # Add semi-transparent overlay
+    st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
+
+    # Filters: Product Name and Dispensary
+    st.markdown("### Filter Options")
+    col1, col2, col3 = st.columns([3, 3, 1])
+
+    with col1:
+        selected_products = st.multiselect(
+            "Select Products",
+            options=["All"] + list(df_sales["Product Name"].unique()),
+            default=["All"],
+            help="Select one or more products to filter"
+        )
+
+        # Automatically select all if "All" is in the selection
+        if "All" in selected_products:
+            selected_products = list(df_sales["Product Name"].unique())
+
+    with col2:
+        selected_dispensaries = st.multiselect(
+            "Select Dispensaries",
+            options=["All"] + list(df_sales["Dispensary"].unique()),
+            default=["All"],
+            help="Select one or more dispensaries to filter"
+        )
+
+        # Automatically select all if "All" is in the selection
+        if "All" in selected_dispensaries:
+            selected_dispensaries = list(df_sales["Dispensary"].unique())
+
+    with col3:
+        st.button("⚙️ Advanced Filters", help="Click to open advanced filtering options")
+
+    # Filter the data based on selections
+    filtered_data = df_sales[
+        (df_sales["Product Name"].isin(selected_products)) &
+        (df_sales["Dispensary"].isin(selected_dispensaries))
+    ]
+
+    # Bar graph in the middle
+    st.header("Total Sales - Day Over Day")
+    fig = px.bar(
+        filtered_data,
+        x="Date",
+        y="Total Sales",
+        color="Dispensary",
+        title=f"Total Sales for Selected Products and Dispensaries",
+        labels={"Total Sales": "Sales ($)", "Date": "Date"}
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Insights below the graph
+    st.subheader("Insights")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Top Performing Dispensaries")
+        top_dispensaries = (
+            filtered_data.groupby("Dispensary")["Total Sales"].sum().reset_index().sort_values(by="Total Sales", ascending=False)
+        )
+        st.table(top_dispensaries)
+
+    with col2:
+        st.subheader("Inventory Status")
+        st.table(df_inventory)
+

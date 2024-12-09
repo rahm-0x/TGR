@@ -85,9 +85,14 @@ def standardize_data():
     # Fetch existing records from Firestore
     existing_data = fetch_firestore_data("standardized_inventory")
     if not existing_data.empty:
+        # Ensure the `snapshot_date` column is a `datetime.date` type
+        existing_data['snapshot_date'] = pd.to_datetime(existing_data['snapshot_date']).dt.date
         existing_records = existing_data[['snapshot_date', 'dispensary_name', 'product_name']]
     else:
         existing_records = pd.DataFrame(columns=['snapshot_date', 'dispensary_name', 'product_name'])
+
+    # Ensure `snapshot_date` column in `df_grouped` is also `datetime.date` type
+    df_grouped['snapshot_date'] = pd.to_datetime(df_grouped['snapshot_date']).dt.date
 
     # Identify new records
     new_data = df_grouped.merge(existing_records, on=['snapshot_date', 'dispensary_name', 'product_name'], how='left', indicator=True)
@@ -98,6 +103,7 @@ def standardize_data():
         write_to_firestore("standardized_inventory", new_data)
     else:
         print("No new data to insert.")
+
 
 if __name__ == "__main__":
     standardize_data()

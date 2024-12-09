@@ -14,7 +14,7 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # ZenRows API Key and endpoint
-ZENROWS_API_KEY = "28664ba5966010eb9b9452f2397b0f37f7df9cb5"
+ZENROWS_API_KEY = "6d31be69d8761dff28f1aad409b3b563f9a2b9f9"
 zenrows_url = "https://api.zenrows.com/v1/"
 
 # Define the Dutchie GraphQL endpoint and query data
