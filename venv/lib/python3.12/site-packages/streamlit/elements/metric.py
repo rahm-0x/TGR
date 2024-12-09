@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import TYPE_CHECKING, Literal, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, Union, cast
 
 from typing_extensions import TypeAlias
 
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from streamlit.delta_generator import DeltaGenerator
 
 
-Value: TypeAlias = Union["np.integer", "np.floating", float, int, str, None]
+Value: TypeAlias = Union["np.integer[Any]", "np.floating[Any]", float, int, str, None]
 Delta: TypeAlias = Union[float, int, str, None]
 DeltaColor: TypeAlias = Literal["normal", "inverse", "off"]
 
@@ -70,7 +70,8 @@ class MetricMixin:
         label : str
             The header or title for the metric. The label can optionally
             contain GitHub-flavored Markdown of the following types: Bold, Italics,
-            Strikethroughs, Inline Code, and Links.
+            Strikethroughs, Inline Code, Links, and Images. Images display like
+            icons, with a max height equal to the font height.
 
             Unsupported Markdown elements are unwrapped so only their children
             (text contents) render. Display unsupported elements as literal
@@ -102,12 +103,14 @@ class MetricMixin:
 
         help : str
             An optional tooltip that gets displayed next to the metric label.
+            Streamlit only displays the tooltip when
+            ``label_visibility="visible"``.
 
         label_visibility : "visible", "hidden", or "collapsed"
-            The visibility of the label. If "hidden", the label doesn't show but there
-            is still empty space for it (equivalent to label="").
-            If "collapsed", both the label and the space are removed. Default is
-            "visible".
+            The visibility of the label. The default is ``"visible"``. If this
+            is ``"hidden"``, Streamlit displays an empty spacer instead of the
+            label, which can help keep the widget alligned with other widgets.
+            If this is ``"collapsed"``, Streamlit displays no label or spacer.
 
         Example
         -------
