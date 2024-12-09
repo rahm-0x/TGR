@@ -1,11 +1,13 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import json
 from datetime import datetime
 from firebase_admin import credentials, firestore, initialize_app
 
-# Initialize Firebase Admin SDK
-cred = credentials.Certificate("/Users/phoenix/Desktop/TGR/firebase/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-58a612a79d.json")
+# Initialize Firebase Admin SDK using Streamlit secrets
+firebase_creds = dict(st.secrets["firebase"]) 
+cred = credentials.Certificate(json.loads(json.dumps(firebase_creds)))
 initialize_app(cred)
 db = firestore.client()
 
@@ -129,11 +131,6 @@ def process_standardized_inventory_data():
         top_sold_30_days = df_pivoted[['product_name', 'Sales_Last_30_Days']].sort_values('Sales_Last_30_Days', ascending=False)
         st.subheader("Last 30 Days")
         st.dataframe(top_sold_30_days)
-
-        # # Pie chart for top products by sales
-        # top_brands = df_pivoted.groupby('product_name')['Sales_Since_Yesterday'].sum().astype(float).nlargest(5)
-        # fig = px.pie(values=top_brands.values, names=top_brands.index, title='Top 5 Products by Sales Since Yesterday')
-        # st.plotly_chart(fig, use_container_width=True)
 
 # Run processor
 if __name__ == "__main__":
