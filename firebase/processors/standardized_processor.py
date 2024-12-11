@@ -10,7 +10,7 @@ initialize_app(cred)
 db = firestore.client()
 
 # Fetch data from Firestore
-@st.cache_data
+@st.cache_data(ttl=43200)  # Cache data for 12 hours (43200 seconds)
 def fetch_firestore_data(collection_name):
     docs = db.collection(collection_name).stream()
     data = [doc.to_dict() for doc in docs]
@@ -39,11 +39,8 @@ def calculate_sales(row, date_cols):
 
 # Main processor for standardized inventory data
 def process_standardized_inventory_data():
-    # Fetch and cache data
-    if 'df_inventory' not in st.session_state:
-        st.session_state['df_inventory'] = fetch_firestore_data("standardized_inventory")
-
-    df_inventory = st.session_state['df_inventory']
+    # Fetch data from Firestore with caching
+    df_inventory = fetch_firestore_data("standardized_inventory")
 
     if df_inventory.empty:
         st.error("No data loaded for Standardized Inventory.")

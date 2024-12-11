@@ -7,7 +7,7 @@ from firebase_admin import credentials, firestore
 import pandas as pd
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate("/Users/phoenix/Desktop/TGR/firebase/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-58a612a79d.json")
+cred = credentials.Certificate("/Users/phoenix/Desktop/TGR/firebase/dataprocessing/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-7101b02dc4.json")
 firebase_admin.initialize_app(cred)
 
 # Get Firestore client
