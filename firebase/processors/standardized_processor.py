@@ -10,8 +10,8 @@ initialize_app(cred)
 db = firestore.client()
 
 # Fetch data from Firestore
-@st.cache_data(ttl=43200)  # Cache data for 12 hours (43200 seconds)
 def fetch_firestore_data(collection_name):
+    """Fetch data from Firestore collection without caching."""
     docs = db.collection(collection_name).stream()
     data = [doc.to_dict() for doc in docs]
     return pd.DataFrame(data) if data else pd.DataFrame()
