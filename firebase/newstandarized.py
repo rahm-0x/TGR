@@ -7,11 +7,29 @@ cred = credentials.Certificate("/Users/phoenix/Desktop/TGR/firebase/thegrowersre
 initialize_app(cred)
 db = firestore.client()
 
-def fetch_firestore_data(collection_name):
-    """Fetch data from a Firestore collection."""
-    docs = db.collection(collection_name).stream()
+def fetch_firestore_data(collection_name, page_size=1000):
+    """Fetch data from a Firestore collection in batches."""
+    docs = []
+    collection_ref = db.collection(collection_name)
+    last_doc = None
+
+    while True:
+        query = collection_ref.order_by("__name__").limit(page_size)
+        if last_doc:
+            query = query.start_after(last_doc)
+
+        batch_docs = query.stream()
+        batch = list(batch_docs)
+        if not batch:
+            break
+
+        docs.extend(batch)
+        last_doc = batch[-1]
+
+    # Convert documents to a DataFrame
     data = [doc.to_dict() for doc in docs]
     return pd.DataFrame(data) if data else pd.DataFrame()
+
 
 def write_to_firestore(collection_name, data):
     """Write data to a Firestore collection."""
@@ -98,7 +116,7 @@ def standardize_data():
     new_data = new_data[new_data['_merge'] == 'left_only'].drop(columns=['_merge'])
 
     if not new_data.empty:
-        # Write new data to Firestore
+        # Write new data to Firestor
         write_to_firestore("standardized_inventory", new_data)
     else:
         print("No new data to insert.")

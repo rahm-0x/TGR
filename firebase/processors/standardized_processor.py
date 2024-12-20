@@ -3,18 +3,53 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 from firebase_admin import credentials, firestore, initialize_app
+import time
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("/Users/phoenix/Desktop/TGR/firebase/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-58a612a79d.json")
 initialize_app(cred)
 db = firestore.client()
 
-# Fetch data from Firestore
-def fetch_firestore_data(collection_name):
-    """Fetch data from Firestore collection without caching."""
-    docs = db.collection(collection_name).stream()
-    data = [doc.to_dict() for doc in docs]
-    return pd.DataFrame(data) if data else pd.DataFrame()
+# Fetch data from Firestore with pagination
+def fetch_firestore_data_paginated(collection_name, page_size=500):
+    """Fetch data from a Firestore collection in smaller batches using pagination."""
+    collection_ref = db.collection(collection_name)
+    documents = []
+    last_doc = None
+
+    while True:
+        try:
+            query = collection_ref.limit(page_size)
+            if last_doc:
+                query = query.start_after(last_doc)
+
+            current_docs = list(query.stream())
+            batch = [doc.to_dict() for doc in current_docs]
+
+            if not batch:
+                break
+
+            documents.extend(batch)
+            last_doc = current_docs[-1] if len(current_docs) == page_size else None
+        except Exception as e:
+            st.error(f"Error fetching Firestore data: {e}")
+            break
+
+    return pd.DataFrame(documents) if documents else pd.DataFrame()
+
+# Fetch data from Firestore with retry logic
+def fetch_firestore_data_with_retries(collection_name, retries=5, delay=1):
+    """Fetch data from Firestore with retry logic for handling timeouts."""
+    for attempt in range(retries):
+        try:
+            return fetch_firestore_data_paginated(collection_name)
+        except Exception as e:
+            st.warning(f"Attempt {attempt + 1} failed: {e}")
+            if attempt < retries - 1:
+                time.sleep(delay * (2 ** attempt))  # Exponential backoff
+            else:
+                st.error(f"All retries failed for {collection_name}.")
+                raise e
 
 # Function to apply conditional formatting
 def highlight_inventory(val):
@@ -39,8 +74,8 @@ def calculate_sales(row, date_cols):
 
 # Main processor for standardized inventory data
 def process_standardized_inventory_data():
-    # Fetch data from Firestore with caching
-    df_inventory = fetch_firestore_data("standardized_inventory")
+    # Fetch data from Firestore using retries
+    df_inventory = fetch_firestore_data_with_retries("standardized_inventory")
 
     if df_inventory.empty:
         st.error("No data loaded for Standardized Inventory.")
@@ -127,11 +162,5 @@ def process_standardized_inventory_data():
         st.subheader("Last 30 Days")
         st.dataframe(top_sold_30_days)
 
-        # # Pie chart for top products by sales
-        # top_brands = df_pivoted.groupby('product_name')['Sales_Since_Yesterday'].sum().astype(float).nlargest(5)
-        # fig = px.pie(values=top_brands.values, names=top_brands.index, title='Top 5 Products by Sales Since Yesterday')
-        # st.plotly_chart(fig, use_container_width=True)
-
-# Run processor
 if __name__ == "__main__":
     process_standardized_inventory_data()
