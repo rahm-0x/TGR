@@ -93,7 +93,7 @@ if st.session_state["current_page"] == "home":
     st.title("Dashboard Overview")
 
     # Add semi-transparent overlay
-    st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
+    #st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
 
     # Bar graph in the middle
     st.header("Total Sales - Day Over Day")
@@ -127,7 +127,7 @@ elif st.session_state["current_page"] == "product_overview":
     st.title("Product Overview")
 
     # Add semi-transparent overlay
-    st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
+   #st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
 
     # Filters: Product Name and Dispensary
     st.markdown("### Filter Options")

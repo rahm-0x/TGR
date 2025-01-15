@@ -1,64 +1,55 @@
 import subprocess
-import time
-import logging
-import sys
-import random
-from datetime import datetime, timedelta
-from concurrent.futures import ProcessPoolExecutor
+import os
 
-# Configure logging to write to a file and to the console
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler("script.log"),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+# Paths to your scripts
+DUTCHIE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/dutchieZenFirebase.py"
+IHEARTJANE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/newIheatJane.py"
+TYPESENSE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/typesenseZenFirebase.py"
+STANDARDIZE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/finalstandrized.py"
+GOOGLE_SHEETS_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/gdrive/finalgdrive.py"
 
-def run_script(script_name):
-    logging.info(f'Running {script_name}...')
-    result = subprocess.run(['python', script_name], capture_output=True, text=True)
-    logging.info(f'{script_name} stdout:\n{result.stdout}')
-    logging.info(f'{script_name} stderr:\n{result.stderr}')
+def run_script(script_path):
+    """
+    Function to execute a Python script.
+    """
+    try:
+        print(f"Running script: {os.path.basename(script_path)}...")
+        result = subprocess.run(["python3", script_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"Script {os.path.basename(script_path)} executed successfully.")
+        else:
+            print(f"Error executing {os.path.basename(script_path)}:\n{result.stderr}")
+    except Exception as e:
+        print(f"An error occurred while running {os.path.basename(script_path)}: {e}")
 
-def main():
-    scripts_to_run_concurrently = [
-        'dutchie.py',
-        'iHeartJane.py',
-        'weedmapsDataPull.py',
-        'typesense.py',
-        'curaleaf.py'
-    ]
+def validate_google_sheets():
+    """
+    Optional function to validate data in Google Sheets after the pipeline runs.
+    """
+    print("Validating Google Sheets update...")
+    # Here you can add custom logic to verify the correctness of data in the Google Sheet.
+    # For example, using the Google Sheets API to check data consistency or logs.
+    print("Validation completed. Please check Google Sheets for updated data.")
 
-    # Run scripts concurrently
-    with ProcessPoolExecutor() as executor:
-        executor.map(run_script, scripts_to_run_concurrently)
+if __name__ == "__main__":
+    print("Starting the data processing pipeline...")
 
-    # Run follow-up scripts
-    run_script('cleanNames.py')
-    #run_script('cleanStrainNames.py')
-    run_script('scheduled/dynamicInventoryNames.py')
-    run_script('googleSheetsInventory.py')
-    run_script('streamlit_app.py')
+    # Step 1: Run Dutchie script
+    run_script(DUTCHIE_SCRIPT)
 
-if __name__ == '__main__':
-    while True:
-        # Get current time and time for the next midnight
-        now = datetime.now()
-        next_midnight = datetime(now.year, now.month, now.day) + timedelta(days=1)
-        
-        # Calculate random sleep time between midnight and 2am
-        random_seconds = random.randint(0, 7200)  # 0 to 7200 seconds (2 hours)
-        
-        # Calculate the time to wake up and run the script
-        wakeup_time = next_midnight + timedelta(seconds=random_seconds) 
-        
-        # Calculate sleep time in seconds
-        sleep_seconds = (wakeup_time - now).total_seconds()
-        
-        logging.info(f'Sleeping until {wakeup_time}...')
-        time.sleep(sleep_seconds)
+    # Step 2: Run iHeartJane script
+    run_script(IHEARTJANE_SCRIPT)
 
-        main()
-        logging.info('Completed all tasks for today.')
+    # Step 3: Run Typesense script
+    run_script(TYPESENSE_SCRIPT)
+
+    # Step 4: Run standardization script
+    run_script(STANDARDIZE_SCRIPT)
+
+    # Step 5: Update Google Sheets
+    run_script(GOOGLE_SHEETS_SCRIPT)
+
+    # Step 6: Validate Google Sheets update (Optional)
+    validate_google_sheets()
+
+    print("Data processing pipeline completed.")

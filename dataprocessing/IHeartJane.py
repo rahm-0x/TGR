@@ -46,6 +46,8 @@ store_ids = {
     3702: "Zen Leaf-Flamingo",
     762: "Zen Leaf-Reno",
     777: "Zen Leaf-Carson City",
+    4219: "Tree of Life Las Vegas",
+    3274: "Tree of Life North Las Vegas Centennial Parkway",
     3013: "The Source-Henderson",
     3012: "The Source-Rainbow",
     3104: "The Source-Northwest",
@@ -56,8 +58,19 @@ store_ids = {
     2014: "Reef Sun Valley",
     1856: "Reef Reef North Las Vegas",
     1988: "Reef Reef (Western Ave.)"
+    # Add additional stores as needed
 }
 snapshot_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+# Grower Circle Brands
+grower_circle_brands = [
+    "grower circle",
+    "growers circle",
+    "grower circle apparel",
+    "the grower circle",
+    "flight bites",
+    "the grower circle"
+]
 
 # Function to send data to Firestore
 def send_to_firestore(data, collection_name):
@@ -110,19 +123,26 @@ for store_id, store_name in store_ids.items():
             print(f"  Records pulled: {len(products)}")
             
             for product in products:
-                product_data = {
-                    "snapshot_time": snapshot_time,
-                    "store_id": store_id,
-                    "store_name": store_name,
-                    "product_name": product.get("name", "Unknown Name"),
-                    "price": product.get("bucket_price", "N/A"),
-                    "quantity": product.get("max_cart_quantity", "N/A"),
-                    "type": product.get("kind", "N/A"),
-                    "thc_content": product.get("percent_thc", "N/A"),
-                    "brand": product.get("brand", "Unknown Brand"),
-                    "location": store_name
-                }
-                store_data.append(product_data)
+                brand = product.get("brand", None)
+                brand_name = brand.lower() if brand else "unknown brand"
+
+                # **Filter for Grower Circle brands**
+                if brand_name in grower_circle_brands:
+                    product_data = {
+                        "snapshot_time": snapshot_time,
+                        "store_id": store_id,
+                        "store_name": store_name,
+                        "product_name": product.get("name", "Unknown Name"),
+                        "price": product.get("bucket_price", "N/A"),
+                        "quantity": product.get("max_cart_quantity", "N/A"),
+                        "type": product.get("kind", "N/A"),
+                        "thc_content": product.get("percent_thc", "N/A"),
+                        "brand": brand,
+                        "location": store_name
+                    }
+                    store_data.append(product_data)
+                else:
+                    print(f"  Skipped product: {product.get('name', 'Unknown Name')} (Brand: {brand})")
 
             page += 1
         else:
@@ -137,7 +157,7 @@ for store_id, store_name in store_ids.items():
 
     # Send data to Firestore for the current store
     if store_data:
-        send_to_firestore(store_data, "iheartjane_zen")
+        send_to_firestore(store_data, "iheartjane_zen_TGCONLY")
     else:
         print(f"No data to upload for store {store_name}.")
 

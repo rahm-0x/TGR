@@ -4,6 +4,7 @@ import plotly.express as px
 from datetime import datetime
 from firebase_admin import credentials, firestore, initialize_app
 import time
+from google.api_core import retry
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("/Users/phoenix/Desktop/TGR/firebase/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-58a612a79d.json")
@@ -16,6 +17,7 @@ def fetch_firestore_data_paginated(collection_name, page_size=500):
     collection_ref = db.collection(collection_name)
     documents = []
     last_doc = None
+    retry_policy = retry.Retry(deadline=60)  # Set an appropriate deadline
 
     while True:
         try:
@@ -23,7 +25,7 @@ def fetch_firestore_data_paginated(collection_name, page_size=500):
             if last_doc:
                 query = query.start_after(last_doc)
 
-            current_docs = list(query.stream())
+            current_docs = list(query.stream(retry=retry_policy))
             batch = [doc.to_dict() for doc in current_docs]
 
             if not batch:
