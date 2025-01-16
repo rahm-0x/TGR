@@ -2,10 +2,16 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, date
 from firebase_admin import credentials, firestore, initialize_app
+import os
 import time
 
+# Define relative path for credentials
+FIREBASE_CREDENTIALS_PATH = "processors/.secrets/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-7101b02dc4.json"
+
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate("/Users/phoenix/Desktop/TGR/firebase/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-58a612a79d.json")
+if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
+    raise FileNotFoundError(f"Firebase credentials file not found at {FIREBASE_CREDENTIALS_PATH}")
+cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
 initialize_app(cred)
 db = firestore.client()
 

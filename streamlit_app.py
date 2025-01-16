@@ -5,9 +5,19 @@ import pandas as pd
 import plotly.express as px
 
 # Add the 'firebase' directory to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "processors")))
 
 from processors.standardized_processor import process_standardized_inventory_data
+
+# Dynamic path for Firebase credentials
+FIREBASE_CREDENTIALS_PATH = os.path.join(
+    os.path.dirname(__file__), "processors", ".secrets", "thegrowersresource-1f2d7-firebase-adminsdk-hj18n-7101b02dc4.json"
+)
+
+# Verify Firebase credentials file exists
+if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
+    st.error(f"Firebase credentials file not found at {FIREBASE_CREDENTIALS_PATH}")
+    raise FileNotFoundError(f"Firebase credentials file not found at {FIREBASE_CREDENTIALS_PATH}")
 
 # Sample data for sales, products, dispensaries, and categories
 sales_data = {
@@ -62,38 +72,9 @@ with st.sidebar:
     if st.button("🔎 Product Overview"):
         st.session_state["current_page"] = "product_overview"
 
-# Custom CSS for semi-transparent overlay
-st.markdown(
-    """
-    <style>
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 50px;
-        z-index: 9999;
-    }
-    .hide {
-        display: none;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # Page: Home Overview
 if st.session_state["current_page"] == "home":
     st.title("Dashboard Overview")
-
-    # Add semi-transparent overlay
-    #st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
 
     # Bar graph in the middle
     st.header("Total Sales - Day Over Day")
@@ -118,16 +99,11 @@ if st.session_state["current_page"] == "home":
 # Page: Inventory Tables
 elif st.session_state["current_page"] == "inventory_tables":
     st.title("Inventory")
-
-    # Process standardized inventory data
     process_standardized_inventory_data()
 
 # Page: Product Overview
 elif st.session_state["current_page"] == "product_overview":
     st.title("Product Overview")
-
-    # Add semi-transparent overlay
-   #st.markdown('<div class="overlay">Coming Soon</div>', unsafe_allow_html=True)
 
     # Filters: Product Name and Dispensary
     st.markdown("### Filter Options")
@@ -140,8 +116,6 @@ elif st.session_state["current_page"] == "product_overview":
             default=["All"],
             help="Select one or more products to filter"
         )
-
-        # Automatically select all if "All" is in the selection
         if "All" in selected_products:
             selected_products = list(df_sales["Product Name"].unique())
 
@@ -152,13 +126,8 @@ elif st.session_state["current_page"] == "product_overview":
             default=["All"],
             help="Select one or more dispensaries to filter"
         )
-
-        # Automatically select all if "All" is in the selection
         if "All" in selected_dispensaries:
             selected_dispensaries = list(df_sales["Dispensary"].unique())
-
-    with col3:
-        st.button("⚙️ Advanced Filters", help="Click to open advanced filtering options")
 
     # Filter the data based on selections
     filtered_data = df_sales[
@@ -193,4 +162,3 @@ elif st.session_state["current_page"] == "product_overview":
     with col2:
         st.subheader("Inventory Status")
         st.table(df_inventory)
-
