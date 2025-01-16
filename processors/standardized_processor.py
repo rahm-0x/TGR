@@ -6,7 +6,7 @@ import os
 
 # Define relative path for credentials with dynamic handling
 FIREBASE_CREDENTIALS_PATH = os.path.join(
-    os.path.dirname(__file__), ".secrets", "thegrowersresource-1f2d7-firebase-adminsdk-hj18n-7101b02dc4.json"
+    os.path.dirname(os.path.abspath(__file__)), ".secrets", "thegrowersresource-1f2d7-firebase-adminsdk-hj18n-7101b02dc4.json"
 )
 
 # Initialize Firebase Admin SDK
@@ -93,7 +93,10 @@ def process_standardized_inventory_data():
         aggfunc='first'
     ).reset_index()
 
-    date_columns = [col for col in df_pivoted.columns if isinstance(col, date)]
+    date_columns = sorted(
+    [col for col in df_pivoted.columns if isinstance(col, date)],
+    reverse=True
+)
     df_pivoted = format_to_integer(df_pivoted, date_columns)
 
     unique_categories = df_pivoted['category'].dropna().unique().tolist()
@@ -113,9 +116,11 @@ def process_standardized_inventory_data():
         df_pivoted = df_pivoted[df_pivoted['product_name'].str.contains(search_term, case=False)]
 
     st.title("Standardized Inventory and Sales Data")
+    # Display data with reordered columns
     columns_to_display = ['dispensary_name', 'product_name', 'price', 'brand', 'category'] + date_columns
     styled_df = df_pivoted[columns_to_display].style.applymap(highlight_inventory, subset=date_columns)
     st.dataframe(styled_df)
+
 
     if len(date_columns) >= 2:
         df_pivoted['Sales_Since_Yesterday'] = df_pivoted[date_columns[1]] - df_pivoted[date_columns[0]]
