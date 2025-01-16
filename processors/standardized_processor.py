@@ -4,9 +4,9 @@ from datetime import datetime, date
 from firebase_admin import credentials, firestore, initialize_app
 import os
 
-# Define relative path for credentials with dynamic handling
-FIREBASE_CREDENTIALS_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), ".secrets", "thegrowersresource-1f2d7-firebase-adminsdk-hj18n-7101b02dc4.json"
+# Define the Firebase credentials path dynamically
+FIREBASE_CREDENTIALS_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), ".secrets", "thegrowersresource-1f2d7-firebase-adminsdk-hj18n-7101b02dc4.json")
 )
 
 # Initialize Firebase Admin SDK
