@@ -18,3 +18,4 @@ client_secret_*.json
 *.pyc
 __pycache__/
 token.json
+.env

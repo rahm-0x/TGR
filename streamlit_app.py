@@ -7,7 +7,7 @@ import plotly.express as px
 # Add the 'firebase' directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "processors")))
 
-from processors.standardized_processor import process_standardized_inventory_data
+from processors.standarized_processorog import process_standardized_inventory_data
 
 # Dynamic path for Firebase credentials
 FIREBASE_CREDENTIALS_PATH = os.path.join(

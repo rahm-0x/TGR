@@ -2,11 +2,11 @@ import subprocess
 import os
 
 # Paths to your scripts
-DUTCHIE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/dutchieZenFirebase.py"
-IHEARTJANE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/newIheatJane.py"
-TYPESENSE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/typesenseZenFirebase.py"
-STANDARDIZE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/finalstandrized.py"
-GOOGLE_SHEETS_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/gdrive/finalgdrive.py"
+DUTCHIE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/Dutchie.py"
+IHEARTJANE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/IHeartJane.py"
+TYPESENSE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/dataprocessing/Typesense.py"
+STANDARDIZE_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/consolidate.py"
+GOOGLE_SHEETS_SCRIPT = "/Users/phoenix/Desktop/TGR-Firebase/TGR/gdrive/sheets.py"
 
 def run_script(script_path):
     """
