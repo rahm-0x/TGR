@@ -3,7 +3,7 @@ from firebase_admin import credentials, firestore, initialize_app
 from datetime import datetime
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate("/Users/phoenix/Desktop/TGR-Firebase/TGR/firebase/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-58a612a79d.json")
+cred = credentials.Certificate("/Users/phoenix/Desktop/TGR-Firebase/TGR/thegrowersresource-1f2d7-firebase-adminsdk-hj18n-58a612a79d.json")
 initialize_app(cred)
 db = firestore.client()
 
