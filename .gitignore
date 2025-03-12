@@ -19,3 +19,13 @@ client_secret_*.json
 __pycache__/
 token.json
 .env
+
+
+dataprocessing/
+/dataprocessing
+dataprocessing/Dutchie.py
+dataprocessing/IHeartJane.py
+
+dataprocessing/Typesense.py
+
+__pycache__/
