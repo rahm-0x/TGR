@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from firebase_admin import credentials, firestore, initialize_app, get_app
+import json
 
 # Streamlit layout config must be the first Streamlit command
 st.set_page_config(layout="wide")
@@ -13,20 +14,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "process
 
 from processors.standarized_processorog import process_standardized_inventory_data
 
-# Firebase credentials
-FIREBASE_CREDENTIALS_PATH = os.path.join(
-    os.path.dirname(__file__), "processors", ".secrets", "thegrowersresource.json"
-)
-
-if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
-    st.error(f"Firebase credentials file not found at {FIREBASE_CREDENTIALS_PATH}")
-    raise FileNotFoundError(f"Firebase credentials file not found at {FIREBASE_CREDENTIALS_PATH}")
-
-# Initialize Firebase only if not already initialized
+# Firebase credentials from Streamlit secrets
 try:
     firebase_app = get_app()
 except ValueError:
-    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+    firebase_config = dict(st.secrets["firebase"])
+    cred = credentials.Certificate(firebase_config)
     firebase_app = initialize_app(cred)
 
 db = firestore.client()

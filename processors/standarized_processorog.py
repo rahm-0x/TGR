@@ -4,19 +4,14 @@ import time
 from datetime import datetime, date
 from firebase_admin import credentials, firestore, initialize_app, get_app
 import os
+import json
 
-# Define relative path for credentials with dynamic handling
-FIREBASE_CREDENTIALS_PATH = os.path.join(
-    os.path.dirname(__file__), ".secrets", "thegrowersresource.json"
-)
-
-if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
-    raise FileNotFoundError(f"Firebase credentials file not found at {FIREBASE_CREDENTIALS_PATH}")
-
+# Load Firebase credentials from Streamlit secrets
 try:
     get_app()
 except ValueError:
-    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+    firebase_config = dict(st.secrets["firebase"])
+    cred = credentials.Certificate(firebase_config)
     initialize_app(cred)
 
 db = firestore.client()
