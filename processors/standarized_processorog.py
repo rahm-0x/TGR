@@ -3,16 +3,15 @@ import pandas as pd
 import time
 from datetime import datetime, date
 from firebase_admin import credentials, firestore, initialize_app, get_app
-import os
 import json
 
 # Load Firebase credentials from Streamlit secrets
 try:
-    get_app()
+    firebase_app = get_app()
 except ValueError:
     firebase_config = dict(st.secrets["firebase"])
     cred = credentials.Certificate(firebase_config)
-    initialize_app(cred)
+    firebase_app = initialize_app(cred)
 
 db = firestore.client()
 
